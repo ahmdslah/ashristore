@@ -13,17 +13,15 @@ class _VideoSplashScreenState extends State<VideoSplashScreen> {
   @override
   void initState() {
     super.initState();
-    _controller = VideoPlayerController.asset(
-        "assets/vedio/Untitled Project/Untitled Project.mp4",
-      )
+    _controller = VideoPlayerController.asset("assets/vedio/splash.mp4")
       ..initialize().then((_) {
         setState(() {});
         _controller.play();
       });
 
     // بعد انتهاء الفيديو روح للهوم
-    Timer(Duration(seconds: 5), () {
-      Navigator.pushReplacementNamed(context, "/home");
+    Timer(Duration(seconds: 9), () {
+      Navigator.pushReplacementNamed(context, "login");
     });
   }
 
@@ -36,19 +34,16 @@ class _VideoSplashScreenState extends State<VideoSplashScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body:
-          _controller.value.isInitialized
-              ? SizedBox.expand(
-                child: FittedBox(
-                  fit: BoxFit.cover,
-                  child: SizedBox(
-                    width: _controller.value.size.width,
-                    height: _controller.value.size.height,
-                    child: VideoPlayer(_controller),
-                  ),
-                ),
-              )
-              : Center(child: CircularProgressIndicator()),
+      body: SizedBox.expand(
+        child: FittedBox(
+          fit: BoxFit.cover,
+          child: SizedBox(
+            width: _controller.value.size.width,
+            height: _controller.value.size.height,
+            child: VideoPlayer(_controller),
+          ),
+        ),
+      ),
     );
   }
 }

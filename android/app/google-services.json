@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "495179430385",
+    "project_id": "ashristore-c781d",
+    "storage_bucket": "ashristore-c781d.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:495179430385:android:e41da361f7a047e3226c50",
+        "android_client_info": {
+          "package_name": "com.example.ashristore"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAZvr3ynWIsumMT8MLebV99UFqnk1XEkeE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
