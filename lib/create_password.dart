@@ -1,5 +1,3 @@
-import 'package:ashristore/home.dart';
-import 'package:ashristore/login_widget.dart';
 import 'package:ashristore/text_title.dart';
 import 'package:flutter/material.dart';
 

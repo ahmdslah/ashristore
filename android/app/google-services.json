@@ -12,7 +12,20 @@
           "package_name": "com.example.ashristore"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "495179430385-f07ifut38temtkpl8u39rsj09s40cnr3.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.ashristore",
+            "certificate_hash": "2e7db910382605f8a5d22507a48976450b16a52e"
+          }
+        },
+        {
+          "client_id": "495179430385-uuur809v6pqmbi4un79kiet2cidtcr5t.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyAZvr3ynWIsumMT8MLebV99UFqnk1XEkeE"
@@ -20,7 +33,19 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "495179430385-uuur809v6pqmbi4un79kiet2cidtcr5t.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "495179430385-snt4hgkithadhf705q9apa1gp923sd5m.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.ashristore"
+              }
+            }
+          ]
         }
       }
     }

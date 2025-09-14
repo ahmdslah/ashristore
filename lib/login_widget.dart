@@ -13,6 +13,7 @@ class LoginWidget extends StatelessWidget {
     this.suffixIcon,
     this.onPressed,
     this.obsecure,
+    this.controller,
   });
   final String imagePath;
   final String title;
@@ -21,6 +22,7 @@ class LoginWidget extends StatelessWidget {
   final String hintText;
   final bool? obsecure;
   final Icon? prefixIcon;
+  final TextEditingController? controller;
   final IconButton? suffixIcon;
   final Function()? onPressed;
   @override
@@ -38,6 +40,7 @@ class LoginWidget extends StatelessWidget {
           TextTitle(text: subTitle, size: 16, fontweight: FontWeight.normal),
           SizedBox(height: 20),
           TextFormField(
+            controller: controller,
             obscureText: obsecure ?? true,
             decoration: InputDecoration(
               prefixIcon: prefixIcon,
