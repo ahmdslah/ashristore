@@ -22,9 +22,9 @@ class Logins extends StatelessWidget {
             title: "أدخل رقم هاتفك المحمول",
             subTitle:
                 "نحتاج إلى التحقق من هويتك. سنرسل لك رمز تحقق لمرة واحدة.",
-            controller: context.read<UserCubit>().phoneNumber,
+            // controller: context.read<UserCubit>().phoneNumber,
             onPressed: () {
-              context.read<UserCubit>().signin();
+              // context.read<UserCubit>().signin();
 
               Navigator.pushNamed(context, "password");
             },

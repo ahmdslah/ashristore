@@ -9,13 +9,19 @@ class TextFormWidget extends StatelessWidget {
     this.controller,
     this.suffixIcon,
     this.onPressed,
+    this.errStyle,
+    this.onChanged,
+    this.validator,
   });
   final String? hintText;
   final bool? obsecure;
   final Icon? prefixIcon;
+  final TextStyle? errStyle;
   final TextEditingController? controller;
   final IconButton? suffixIcon;
   final Function()? onPressed;
+  final Function(String)? onChanged;
+  final String? Function(String?)? validator;
   @override
   Widget build(BuildContext context) {
     return TextFormField(
@@ -34,7 +40,10 @@ class TextFormWidget extends StatelessWidget {
         prefixIcon: prefixIcon,
         suffixIcon: suffixIcon,
         hintText: hintText,
+        errorStyle: errStyle,
       ),
+      onChanged: onChanged,
+      validator: validator,
     );
   }
 }

@@ -2,7 +2,7 @@ import 'package:ashristore/login_widget.dart';
 import 'package:flutter/material.dart';
 
 class Password extends StatefulWidget {
-  Password({super.key});
+  const Password({super.key});
 
   @override
   State<Password> createState() => _PasswordState();

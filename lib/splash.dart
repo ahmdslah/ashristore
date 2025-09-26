@@ -3,6 +3,8 @@ import 'package:video_player/video_player.dart';
 import 'dart:async';
 
 class VideoSplashScreen extends StatefulWidget {
+  const VideoSplashScreen({super.key});
+
   @override
   _VideoSplashScreenState createState() => _VideoSplashScreenState();
 }
@@ -21,7 +23,7 @@ class _VideoSplashScreenState extends State<VideoSplashScreen> {
 
     // بعد انتهاء الفيديو روح للهوم
     Timer(Duration(seconds: 9), () {
-      Navigator.pushReplacementNamed(context, "login");
+      Navigator.pushReplacementNamed(context, "home");
     });
   }
 

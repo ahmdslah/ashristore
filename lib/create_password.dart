@@ -2,7 +2,7 @@ import 'package:ashristore/text_title.dart';
 import 'package:flutter/material.dart';
 
 class CreatePassword extends StatefulWidget {
-  CreatePassword({super.key});
+  const CreatePassword({super.key});
 
   @override
   State<CreatePassword> createState() => _CreatePasswordState();

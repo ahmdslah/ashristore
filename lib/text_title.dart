@@ -4,14 +4,16 @@ class TextTitle extends StatelessWidget {
   const TextTitle({
     super.key,
     required this.text,
-    required this.size,
-    required this.fontweight,
+    this.size,
+    this.fontweight,
     this.fontcolor,
+    this.textAlign,
   });
   final String text;
-  final double size;
-  final FontWeight fontweight;
+  final double? size;
+  final FontWeight? fontweight;
   final Color? fontcolor;
+  final TextAlign? textAlign;
   @override
   Widget build(BuildContext context) {
     return Text(

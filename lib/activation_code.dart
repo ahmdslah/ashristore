@@ -2,7 +2,7 @@ import 'package:ashristore/login_widget.dart';
 import 'package:flutter/material.dart';
 
 class ActivationCode extends StatefulWidget {
-  ActivationCode({super.key});
+  const ActivationCode({super.key});
 
   @override
   State<ActivationCode> createState() => _ActivationCodeState();
