@@ -1,10 +1,10 @@
-import 'package:ashristore/const.dart';
+import 'package:ashristore/const/const.dart';
 import 'package:ashristore/excel/excel.dart';
 import 'package:ashristore/text_title.dart';
 import 'package:flutter/material.dart';
 
 class AdminHome extends StatefulWidget {
-  AdminHome({super.key});
+  const AdminHome({super.key});
 
   @override
   State<AdminHome> createState() => _AdminHomeState();
@@ -54,7 +54,7 @@ class _AdminHomeState extends State<AdminHome> {
             ),
             Row(
               children: [
-                Container(
+                SizedBox(
                   height: (screenWidth * .9) * .85,
                   width: (screenWidth * .95) / 2,
                   ////////////////
@@ -120,7 +120,7 @@ class _AdminHomeState extends State<AdminHome> {
                 ),
                 SizedBox(width: screenWidth * .05),
 
-                Container(
+                SizedBox(
                   height: (screenWidth * .9) * .85,
                   width: (screenWidth * .95) / 2,
                   ////////////////

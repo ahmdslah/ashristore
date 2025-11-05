@@ -1,7 +1,6 @@
-import 'package:ashristore/const.dart';
+import 'package:ashristore/const/const.dart';
 import 'package:ashristore/cubit/user_cubit/user_cubit.dart';
 import 'package:ashristore/cubit/user_cubit/user_states.dart';
-import 'package:ashristore/excel/excel.dart';
 import 'package:ashristore/screens/next_button.dart';
 import 'package:ashristore/text_form_widget.dart';
 import 'package:ashristore/text_title.dart';
@@ -9,8 +8,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_social_button/flutter_social_button.dart';
 
+// ignore: must_be_immutable
 class Login extends StatelessWidget {
   Login({super.key});
+
+  bool isSecure = true;
+
   @override
   Widget build(BuildContext context) {
     return BlocConsumer<UserCubit, UserStates>(
@@ -50,8 +53,26 @@ class Login extends StatelessWidget {
                   ),
                   SizedBox(height: screenHeight * .05),
                   TextFormWidget(
-                    obsecure: false,
-
+                    onSubmit: (p0) {
+                      context.read<UserCubit>().login();
+                    },
+                    suffixIcon:
+                        isSecure
+                            ? IconButton(
+                              onPressed: () {
+                                isSecure = false;
+                                context.read<UserCubit>().setState();
+                              },
+                              icon: Icon(Icons.password_outlined),
+                            )
+                            : IconButton(
+                              onPressed: () {
+                                isSecure = true;
+                                context.read<UserCubit>().setState();
+                              },
+                              icon: Icon(Icons.remove_red_eye),
+                            ),
+                    obsecure: isSecure,
                     hintText: "ادخل الرقم السري",
                     controller: context.read<UserCubit>().passwordL,
                   ),

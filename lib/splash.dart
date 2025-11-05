@@ -1,4 +1,8 @@
+import 'package:ashristore/const/const.dart';
+import 'package:ashristore/cubit/user_cubit/user_cubit.dart';
+import 'package:ashristore/text_title.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:video_player/video_player.dart';
 import 'dart:async';
 
@@ -23,7 +27,11 @@ class _VideoSplashScreenState extends State<VideoSplashScreen> {
 
     // بعد انتهاء الفيديو روح للهوم
     Timer(Duration(seconds: 9), () {
-      Navigator.pushReplacementNamed(context, "home");
+      if (context.read<UserCubit>().user != null) {
+        Navigator.pushReplacementNamed(context, "homeScreen");
+      } else {
+        Navigator.pushReplacementNamed(context, "login");
+      }
     });
   }
 
@@ -36,6 +44,23 @@ class _VideoSplashScreenState extends State<VideoSplashScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        leading: TextButton(
+          onPressed: () {
+            if (context.read<UserCubit>().user != null) {
+              Navigator.pushReplacementNamed(context, "homeScreen");
+            } else {
+              Navigator.pushReplacementNamed(context, "login");
+            }
+          },
+          child: TextTitle(
+            text: "تخطي",
+            fontcolor: kPColor,
+            fontweight: FontWeight.bold,
+            size: 12,
+          ),
+        ),
+      ),
       body: SizedBox.expand(
         child: FittedBox(
           fit: BoxFit.cover,

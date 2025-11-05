@@ -17,8 +17,11 @@ class TextTitle extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Text(
+      // softWrap: true, // يخليه يكسر السطر تلقائي
+      // overflow: TextOverflow.visible, // يخلي النص يظهر كله
       text,
       style: TextStyle(
+        fontFamily: "cairo",
         color: fontcolor,
         fontSize: size,
         fontWeight: fontweight,

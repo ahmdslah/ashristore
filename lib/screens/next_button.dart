@@ -1,4 +1,4 @@
-import 'package:ashristore/const.dart';
+import 'package:ashristore/const/const.dart';
 import 'package:ashristore/text_title.dart';
 import 'package:flutter/material.dart';
 

@@ -1,72 +1,92 @@
-import 'package:ashristore/components/product_card.dart';
-import 'package:ashristore/excel/excel.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/material.dart';
+// import 'package:ashristore/components/product_card.dart';
+// import 'package:ashristore/excel/excel.dart';
+// import 'package:firebase_auth/firebase_auth.dart';
+// import 'package:flutter/material.dart';
 
-class Home extends StatefulWidget {
-  Home({super.key});
+// class Home extends StatefulWidget {
+//   Home({super.key});
 
-  @override
-  State<Home> createState() => _HomeState();
-}
+//   @override
+//   State<Home> createState() => _HomeState();
+// }
 
-List list = [];
+// List list = [];
 
-class _HomeState extends State<Home> {
-  @override
-  void initState() {
-    super.initState();
-    _loadData();
-  }
+// class _HomeState extends State<Home> {
+//   @override
+//   void initState() {
+//     super.initState();
+//     _loadData();
+//   }
 
-  void _loadData() async {
-    final data = await readFromGoogleSheet();
-    setState(() {
-      list = data; // خزّنا البيانات في المتغير
-    });
-  }
+//   void _loadData() async {
+//     final data = await readFromGoogleSheet();
+//     setState(() {
+//       list = data; // خزّنا البيانات في المتغير
+//     });
+//   }
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        actions: [
-          IconButton(
-            onPressed: () async {
-              await FirebaseAuth.instance.signOut();
-              // ignore: use_build_context_synchronously
-              Navigator.pushReplacementNamed(context, "login");
-            },
-            icon: Icon(Icons.logout_outlined),
-          ),
-        ],
+//   @override
+//   Widget build(BuildContext context) {
+//     double screenWidth = MediaQuery.of(context).size.width;
 
-        title: Text("بقالة العشري ترحب بك"),
-      ),
-      body:
-          list.isEmpty
-              ? Center(child: CircularProgressIndicator())
-              : Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: GridView.builder(
-                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 2,
-                    crossAxisSpacing: 10,
-                    mainAxisSpacing: 10,
-                    childAspectRatio: 3 / 5,
-                  ),
-                  itemCount: list.length,
-                  itemBuilder: (context, index) {
-                    final product = list[index];
-                    return ProductCard(
-                      name: list[index]["Name"],
-                      descreption: list[index]["Description"],
-                      imageUrl: list[index]["image"],
-                      price: list[index]["Price"],
-                    );
-                  },
-                ),
-              ),
-    );
-  }
-}
+//     return Scaffold(
+//       appBar: AppBar(
+//         actions: [
+//           IconButton(
+//             onPressed: () async {
+//               list = await readFromGoogleSheet();
+//               setState(() {});
+//             },
+//             icon: Icon(Icons.refresh),
+//           ),
+//           IconButton(
+//             onPressed: () async {
+//               await FirebaseAuth.instance.signOut();
+//               // ignore: use_build_context_synchronously
+//               Navigator.pushReplacementNamed(context, "login");
+//             },
+//             icon: Icon(Icons.logout_outlined),
+//           ),
+//         ],
+
+//         title: Text("بقالة العشري ترحب بك"),
+//       ),
+//       body:
+//           list.isEmpty
+//               ? Center(child: CircularProgressIndicator())
+//               : Padding(
+//                 padding: const EdgeInsets.all(8.0),
+//                 child: GridView.builder(
+//                   gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+//                     crossAxisCount: 2,
+//                     crossAxisSpacing: 10,
+//                     mainAxisSpacing: 10,
+//                     childAspectRatio: 3 / 5,
+//                   ),
+//                   itemCount: list.length,
+//                   itemBuilder: (context, index) {
+//                     final product = list[index];
+//                     return ProductCard(
+//                       name: list[index]["Name"],
+
+//                       // descreption: list[index]["Description"],
+//                       image:
+//                           list[index]["image"] == "null"
+//                               ? Image(
+//                                 image: AssetImage(
+//                                   "assets/images/introPasswoed.png",
+//                                 ),
+//                               )
+//                               : Image(
+//                                 image: NetworkImage(list[index]["image"]),
+//                                 height: (screenWidth * .9) / 2,
+//                               ),
+//                       price: list[index]["Price"],
+//                     );
+//                   },
+//                 ),
+//               ),
+//     );
+//   }
+// }

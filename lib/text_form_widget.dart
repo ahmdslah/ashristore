@@ -12,14 +12,16 @@ class TextFormWidget extends StatelessWidget {
     this.errStyle,
     this.onChanged,
     this.validator,
+    this.onSubmit,
   });
   final String? hintText;
   final bool? obsecure;
-  final Icon? prefixIcon;
+  final IconButton? prefixIcon;
   final TextStyle? errStyle;
   final TextEditingController? controller;
   final IconButton? suffixIcon;
   final Function()? onPressed;
+  final Function(String)? onSubmit;
   final Function(String)? onChanged;
   final String? Function(String?)? validator;
   @override
@@ -44,6 +46,7 @@ class TextFormWidget extends StatelessWidget {
       ),
       onChanged: onChanged,
       validator: validator,
+      onFieldSubmitted: onSubmit,
     );
   }
 }

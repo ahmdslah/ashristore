@@ -2,15 +2,6 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 
 Future<List> readFromGoogleSheet() async {
-  // معرف الورقة (Sheet ID) من الرابط
-  const sheetId = "1Y9gM-i8R2y28flgXzDtn5Rng08p4gQ9x";
-  // اسم الـ sheet داخل الملف (sheet name)
-  const sheetName = "Sheet1";
-
-  // مفتاح الـ API (لازم تحط مفتاحك)
-  const apiKey = "AIzaSyCG41PDLoFVVGnYieY2Af_0PDZnsETtep8";
-
-  // رابط استعلام Google Sheets API
   final url = Uri.parse(
     "https://sheets.googleapis.com/v4/spreadsheets/1ORbdCJJK7szdsrjdWZC2W8Sa9EjkGjc7ueeocAW91r0/values/Sheet1?key=AIzaSyCG41PDLoFVVGnYieY2Af_0PDZnsETtep8",
   );
@@ -28,7 +19,13 @@ Future<List> readFromGoogleSheet() async {
       var row = rows[i];
       Map<String, dynamic> obj = {};
       for (var j = 0; j < headers.length; j++) {
-        obj[headers[j]] = row[j];
+        if (j < row.length &&
+            row[j] != null &&
+            row[j].toString().trim().isNotEmpty) {
+          obj[headers[j]] = row[j];
+        } else {
+          obj[headers[j]] = null;
+        }
       }
       list.add(obj);
     }
@@ -36,6 +33,29 @@ Future<List> readFromGoogleSheet() async {
     return list;
   } else {
     print("Failed to fetch sheet: ${response.statusCode}");
+    return [];
+  }
+}
+
+Future<List> readCategoriesFromGoogleSheet() async {
+  final url = Uri.parse(
+    "https://sheets.googleapis.com/v4/spreadsheets/1ORbdCJJK7szdsrjdWZC2W8Sa9EjkGjc7ueeocAW91r0/values/Sheet2!A2:B?key=AIzaSyCG41PDLoFVVGnYieY2Af_0PDZnsETtep8",
+  );
+
+  final response = await http.get(url);
+
+  if (response.statusCode == 200) {
+    final data = json.decode(response.body);
+
+    List categories = data["values"] ?? [];
+
+    print("✅ عدد الفئات: ${categories.length}");
+    print(categories);
+    print(categories.runtimeType);
+
+    return categories;
+  } else {
+    print("❌ Failed to fetch sheet: ${response.statusCode}");
     return [];
   }
 }

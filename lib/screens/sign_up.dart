@@ -1,4 +1,4 @@
-import 'package:ashristore/const.dart';
+import 'package:ashristore/const/const.dart';
 import 'package:ashristore/cubit/user_cubit/user_cubit.dart';
 import 'package:ashristore/cubit/user_cubit/user_states.dart';
 import 'package:ashristore/screens/next_button.dart';
@@ -14,11 +14,11 @@ class SignUp extends StatelessWidget {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
   final emailpattern = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,}$');
-  String _fName = "";
-  String _lName = "";
-  String _email = "";
-  String _password = "";
-  String _confirmPassword = "";
+  late String _fName;
+  late String _lName;
+  late String _email;
+  late String _password;
+  late String _confirmPassword;
   bool pressed = false;
   String? _validateFName(String? val) {
     if (_fName.isEmpty) {
@@ -135,7 +135,7 @@ class SignUp extends StatelessWidget {
                         SizedBox(height: screenHeight * .05),
 
                         TextFormWidget(
-                          hintText: "ادخل الايميل او رقم الهاتف",
+                          hintText: "ادخل الايميل من فضلك",
                           controller: context.read<UserCubit>().email,
                           obsecure: false,
                           onChanged: (val) {
