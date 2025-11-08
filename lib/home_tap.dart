@@ -28,7 +28,7 @@ class HomeTap extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) => UserCubit()..initState(),
+      create: (context) => UserCubit()..initializeData(),
       child: BlocConsumer<UserCubit, UserStates>(
         listener: (context, state) {},
         builder: (context, state) {

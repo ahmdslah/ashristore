@@ -12,18 +12,21 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 class UserCubit extends Cubit<UserStates> {
   UserCubit() : super(UserInitialState());
 
-  final emailpattern = RegExp(
-    r"\^\^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?\^_`{|}~]+@[a-zA-Z0-9]+.[a-zA-Z]+",
+  // Email regex - fixed and safe
+  final emailPattern = RegExp(
+    r"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]+\$",
+    caseSensitive: false,
   );
 
-  TextEditingController email = TextEditingController();
-  TextEditingController password = TextEditingController();
-  TextEditingController emailL = TextEditingController();
-  TextEditingController passwordL = TextEditingController();
-  TextEditingController confirmPassword = TextEditingController();
-  TextEditingController fName = TextEditingController();
-  TextEditingController lName = TextEditingController();
-  // final ApiConsumer api;
+  // Controllers
+  final TextEditingController email = TextEditingController();
+  final TextEditingController password = TextEditingController();
+  final TextEditingController emailL = TextEditingController();
+  final TextEditingController passwordL = TextEditingController();
+  final TextEditingController confirmPassword = TextEditingController();
+  final TextEditingController fName = TextEditingController();
+  final TextEditingController lName = TextEditingController();
+
   PriceModel? priceModel;
 
   FirebaseFirestore firestore = FirebaseFirestore.instance;
@@ -32,58 +35,89 @@ class UserCubit extends Cubit<UserStates> {
   );
   final user = FirebaseAuth.instance.currentUser;
 
+  // User info built from CacheHelper - typed
   UserModel? userInfo = UserModel(
-    name: CacheHelper().getData(key: userName) ?? "userName",
-    email: CacheHelper().getData(key: userEmail) ?? "email@email.com",
-    cart: CacheHelper().getList(userCart) ?? [],
+    name: CacheHelper().getData(key: userName),
+    email: CacheHelper().getData(key: userEmail),
+    cart: CacheHelper().getList(userCart),
   );
 
-  List productList = CacheHelper().getListOfMap(productListCache);
-  // List cart = CacheHelper().getListOfMap(cartListCache);
-  List categories = [];
+  // typed lists to avoid runtime errors
+  List<Map<String, dynamic>> productList = CacheHelper().getListOfMap(
+    productListCache,
+  );
+  List<Map<String, dynamic>> cartFull = [];
+  List<String> categories = [];
 
   int currentIndex = 0;
 
-  double _totalPrice = CacheHelper().getData(key: totalPriceCache);
+  double _totalPrice =
+      (CacheHelper().getData(key: totalPriceCache) is double)
+          ? CacheHelper().getData(key: totalPriceCache)
+          : double.tryParse(
+                CacheHelper().getData(key: totalPriceCache)?.toString() ?? '0',
+              ) ??
+              0;
 
-  double getTotal() {
-    return _totalPrice;
-  }
+  double getTotal() => _totalPrice;
 
   void changeIndex(int index) {
     currentIndex = index;
     emit(ChangeIndex());
   }
 
-  Future<void> initState() async {
+  /// هذا الأسلوب يعيد تسمية initState ليكون مناسبًا داخل Cubit
+  Future<void> initializeData() async {
     try {
-      if (productList.isEmpty) {
-        await loadProducts();
-      }
-      getUserInfo();
+      emit(ProductsLoading());
+
+      await loadProducts();
+
+      await getUserInfo();
       showCart();
       totalPrice(CacheHelper().getListOfMap(cartListCache));
+
+      emit(ProductsSuccess(productsList: productList));
     } catch (e) {
       emit(ProductsFailed());
+      print('initializeData error: $e');
     }
   }
 
   Future<void> loadProducts() async {
-    final data = await readFromGoogleSheet();
-
-    CacheHelper().saveListOfMap(key: productListCache, value: data);
+    try {
+      final data = await readFromGoogleSheet();
+      if (data != null) {
+        // expect data is List<Map<String, dynamic>>
+        CacheHelper().saveListOfMap(key: productListCache, value: data);
+        productList = List<Map<String, dynamic>>.from(data);
+      }
+    } catch (e) {
+      print('loadProducts error: $e');
+      rethrow;
+    }
   }
 
-  totalPrice(List cart) {
+  void totalPrice(List<Map<String, dynamic>>? cart) {
     double total = 0;
-    for (int i = 0; i < cart.length; i++) {
-      if (cart[i][pPrice] != null) {
-        total += double.parse(cart[i][pPrice]) * cart[i][pCount];
-      }
+    if (cart == null) cart = [];
+
+    for (var item in cart) {
+      final rawPrice = item[pPrice]?.toString() ?? '0';
+      final price = double.tryParse(rawPrice) ?? 0;
+      final count =
+          (item[pCount] is int)
+              ? item[pCount]
+              : int.tryParse(item[pCount]?.toString() ?? '1') ?? 1;
+      total += price * count;
     }
+
     CacheHelper().saveData(key: totalPriceCache, value: total);
     _totalPrice = total;
-    print(CacheHelper().getData(key: totalPriceCache));
+    print(
+      'Total price updated in cache: ${CacheHelper().getData(key: totalPriceCache)}',
+    );
+    // emit(TotalPriceUpdated(total: _totalPrice));
   }
 
   Future<void> adduser(
@@ -95,155 +129,171 @@ class UserCubit extends Cubit<UserStates> {
     DateTime createdAt,
     List<Map<dynamic, dynamic>> cart,
   ) async {
-    users
-        .doc(email.trim().toLowerCase())
-        .set({
-          userName: "${fName.trim()} ${lName.trim()}",
-          userEmail: email.trim().toLowerCase(),
-          userPassword: password.trim(),
-          userId: id,
-          userCreatedAt: createdAt,
-          userCart: cart,
-        })
-        .then(
-          (value) => print(
-            "----------------------------User Added-------------------------------------",
-          ),
-        )
-        .catchError((error) => print("Error Occured $error"));
+    try {
+      await users.doc(email.trim().toLowerCase()).set({
+        userName: "${fName.trim()} ${lName.trim()}",
+        userEmail: email.trim().toLowerCase(),
+        userPassword: password.trim(),
+        userId: id,
+        userCreatedAt: createdAt,
+        userCart: cart,
+      });
+
+      print(
+        '----------------------------User Added-------------------------------------',
+      );
+    } catch (error) {
+      print('Error Occured $error');
+      rethrow;
+    }
   }
 
+  /// تحديث السلة: الآن يتعامل مع قائمة من IDs حيث يمكن أن تكون السلة عبارة عن List<int>
   Future<void> updateUserCart(
     int productId,
     String email,
     List<dynamic> cart,
   ) async {
-    List<dynamic> newCart = cart;
-    newCart.add(productId);
-    await users
-        .doc(email)
-        .set({userCart: newCart}, SetOptions(merge: true))
-        .then((onValue) => print("cart updated"))
-        .catchError(
-          (onError) => print(
-            "---------------------------$onError-------------------------------",
-          ),
-        );
-    CacheHelper().saveList(key: userCart, value: newCart);
-    showCart();
-    totalPrice(CacheHelper().getListOfMap(cartListCache));
-    CacheHelper().saveData(key: totalPriceCache, value: _totalPrice);
+    try {
+      final List<dynamic> newCart = List<dynamic>.from(cart);
+      newCart.add(productId);
+
+      await users.doc(email).set({userCart: newCart}, SetOptions(merge: true));
+      CacheHelper().saveList(key: userCart, value: newCart);
+
+      showCart();
+
+      totalPrice(CacheHelper().getListOfMap(cartListCache));
+      CacheHelper().saveData(key: totalPriceCache, value: _totalPrice);
+
+      // emit(CartUpdated());
+      print('cart updated');
+    } catch (e) {
+      print('updateUserCartItemCount error: $e');
+    }
   }
 
+  /// جلب معلومات المستخدم من الفايرستور وتخزينها في الكاش
   Future<void> getUserInfo() async {
     try {
-      if (user != null) {
-        DocumentSnapshot doc =
+      final current = FirebaseAuth.instance.currentUser;
+      if (current != null && current.email != null) {
+        final doc =
             await FirebaseFirestore.instance
                 .collection(userCollection)
-                .doc(user!.email!)
+                .doc(current.email!.trim().toLowerCase())
                 .get();
-        final data = doc.data() as Map<String, dynamic>;
-        CacheHelper().saveData(key: userName, value: data[userName]);
-        CacheHelper().saveData(key: userEmail, value: data[userEmail]);
-        CacheHelper().saveList(key: userCart, value: data[userCart]);
+
+        if (doc.exists) {
+          final data = doc.data() as Map<String, dynamic>;
+          CacheHelper().saveData(key: userName, value: data[userName]);
+          CacheHelper().saveData(key: userEmail, value: data[userEmail]);
+          CacheHelper().saveList(key: userCart, value: data[userCart] ?? []);
+
+          print(
+            'User info saved to cache: ${data[userName]}, ${data[userEmail]}',
+          );
+        } else {
+          print('No user doc found for ${current.email}');
+        }
       }
     } catch (e) {
-      print("❌❌❌❌❌❌ $e");
+      print('❌❌❌ getUserInfo error: $e');
     }
   }
 
+  /// showCart - يبني cartFull من cache userCart ويربط كل ID بالمنتج
   void showCart() {
-    // تأجيل بسيط لو محتاج تتأكد من تحميل البيانات
-    Future.delayed(const Duration(seconds: 1));
+    final List<dynamic> carts = CacheHelper().getList(userCart) ?? [];
 
-    // قراءة سلة المستخدم
-    List carts = CacheHelper().getList(userCart);
-
-    // قائمة المنتجات والعدّادات
-    List<Map<String, dynamic>> products = [];
-    Map<int, int> counts = {};
-
-    // 🧮 1️⃣ حساب عدد مرات التكرار
-    for (var num in carts) {
-      counts[num] = (counts[num] ?? 0) + 1;
+    // counts map
+    final Map<int, int> counts = {};
+    for (var id in carts) {
+      try {
+        final intId = (id is int) ? id : int.parse(id.toString());
+        counts[intId] = (counts[intId] ?? 0) + 1;
+      } catch (e) {
+        print('Invalid cart id found: $id');
+      }
     }
 
-    // 🔢 2️⃣ تحويل النتائج إلى قائمة فيها ID و count
-    List<Map<String, dynamic>> result =
-        counts.entries.map((e) => {"ID": e.key, "count": e.value}).toList();
+    final List<Map<String, dynamic>> products = [];
 
-    // 🧩 3️⃣ تأمين productList قبل الاستخدام
     if (productList.isEmpty) {
-      print("⚠️ productList فارغة، لن يتم عرض السلة.");
+      print('⚠️ productList فارغة، لن يتم عرض السلة.');
+      cartFull = [];
+      CacheHelper().saveListOfMap(key: cartListCache, value: cartFull);
       return;
     }
 
-    // 🛒 4️⃣ ربط كل ID بالمنتج الصحيح
-    for (var item in result) {
-      final foundProduct = productList.firstWhere(
-        (p) {
-          try {
-            return int.parse(p['ID'].toString()) == item['ID'];
-          } catch (e) {
-            print("❌ خطأ أثناء مقارنة ID: $e");
-            return false;
-          }
-        },
-        orElse: () => <String, dynamic>{}, // نوع متوافق تمامًا
-      );
+    for (var entry in counts.entries) {
+      final foundProduct = productList.firstWhere((p) {
+        try {
+          return int.parse(p['ID'].toString()) == entry.key;
+        } catch (e) {
+          return false;
+        }
+      }, orElse: () => {});
 
-      if (foundProduct.isNotEmpty) {
+      if (foundProduct != null && foundProduct.isNotEmpty) {
         final product = Map<String, dynamic>.from(foundProduct);
-        product['count'] = item['count'];
+        product['count'] = entry.value;
         products.add(product);
       } else {
-        print("⚠️ المنتج ذو ID ${item['ID']} غير موجود في القائمة.");
+        print('⚠️ المنتج ذو ID ${entry.key} غير موجود في القائمة.');
       }
     }
-
-    // 💾 5️⃣ حفظ النتيجة في الكاش
+    print(cartFull.length);
+    cartFull = products;
+    print("-------");
+    print(cartFull.length);
     CacheHelper().saveListOfMap(key: cartListCache, value: products);
+    // emit(CartLoaded(list: cartFull));
   }
 
-  loadOneCategory(String catName) async {
+  Future<void> loadOneCategory(String catName) async {
     try {
       emit(LoadCatLoading());
-      // await Future.delayed(Duration(milliseconds: 500));
-      List<Map<String, dynamic>> proList = [];
+      final List<Map<String, dynamic>> proList = [];
       for (int i = 0; i < productList.length; i++) {
         if (productList[i][pCat] == catName) {
           proList.add(productList[i]);
         }
       }
       emit(LoadCatSuccess(list: proList));
-    } on Exception catch (e) {
+    } catch (e) {
       emit(LoadCatFailed(errMessage: e.toString()));
     }
   }
 
-  setState() {
+  void setState() {
     emit(SetState());
   }
 
-  signUp() async {
+  Future<void> signUp() async {
     try {
       emit(UserSignupLoading());
       final credential = await FirebaseAuth.instance
           .createUserWithEmailAndPassword(
-            email: email.text,
-            password: password.text,
+            email: email.text.trim(),
+            password: password.text.trim(),
           );
-      credential.user!.sendEmailVerification();
-      adduser(
+
+      await credential.user!.sendEmailVerification();
+
+      await adduser(
         fName.text,
         lName.text,
         password.text,
-        email.text,
+        email.text.trim().toLowerCase(),
         credential.user!.uid,
-        credential.user!.metadata.creationTime!,
+        credential.user!.metadata.creationTime ?? DateTime.now(),
         [],
       );
+
+      // refresh local user info
+      await getUserInfo();
+
       emit(UserSignupSuccess());
     } on FirebaseAuthException catch (e) {
       if (e.code == 'weak-password') {
@@ -262,7 +312,7 @@ class UserCubit extends Cubit<UserStates> {
     }
   }
 
-  login() async {
+  Future<void> login() async {
     try {
       if (emailL.text.isNotEmpty && passwordL.text.isNotEmpty) {
         emit(UserLoginLoading());
@@ -275,9 +325,17 @@ class UserCubit extends Cubit<UserStates> {
             email: emailL.text.trim(),
             password: passwordL.text.trim(),
           );
+
+          // بعد الدخول جلب بيانات المستخدم وتحديث الكاش
+          await getUserInfo();
+          showCart();
+          totalPrice(CacheHelper().getListOfMap(cartListCache));
+
           emit(UserLoginSuccess());
           clearLogin();
         }
+      } else {
+        emit(UserLoginFailed(message: 'Email and password must not be empty'));
       }
     } on FirebaseAuthException catch (e) {
       String message;
@@ -306,7 +364,7 @@ class UserCubit extends Cubit<UserStates> {
     }
   }
 
-  clearSignup() {
+  void clearSignup() {
     fName.clear();
     lName.clear();
     password.clear();
@@ -314,45 +372,16 @@ class UserCubit extends Cubit<UserStates> {
     confirmPassword.clear();
   }
 
-  clearLogin() {
+  void clearLogin() {
     passwordL.clear();
     emailL.clear();
   }
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-// Future<UserCredential> signInWithGoogle() async {
-  //   // 1. Trigger the authentication flow
-  //   final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
-
-  //   // لو المستخدم لغى تسجيل الدخول
-  //   if (googleUser == null) {
-  //     throw Exception("Sign in aborted by user");
-  //   }
-
-  //   // 2. Obtain the auth details from the request
-  //   final GoogleSignInAuthentication googleAuth =
-  //       await googleUser.authentication;
-
-  //   // 3. Create a new credential
-  //   final OAuthCredential credential = GoogleAuthProvider.credential(
-  //     accessToken: googleAuth.accessToken,
-  //     idToken: googleAuth.idToken,
-  //   );
-
-  //   // 4. Once signed in, return the UserCredential
-  //   return await FirebaseAuth.instance.signInWithCredential(credential);
-  // }
+// --------------------------------------------------
+// ملاحظة: لقد حافظت على بنية الدوال الأساسية، لكن
+// حسّنت الأمن، الأنواع، وتعامل الأخطاء.
+// لو عايز أضيف: إدارة كميات (quantity) مباشرة،
+// دعم إزالة عناصر من السلة، أو offline sync
+// أعمل تعديل تاني وابدأ أضيف.
+// --------------------------------------------------

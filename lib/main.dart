@@ -1,6 +1,4 @@
-import 'package:ashristore/activation_code.dart';
 import 'package:ashristore/core/cache/cache_helper.dart';
-import 'package:ashristore/create_password.dart';
 import 'package:ashristore/cubit/user_cubit/user_cubit.dart';
 import 'package:ashristore/password.dart';
 import 'package:ashristore/screens/admin_home.dart';
@@ -28,7 +26,9 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MultiBlocProvider(
-      providers: [BlocProvider(create: (context) => UserCubit()..initState())],
+      providers: [
+        BlocProvider(create: (context) => UserCubit()..initializeData()),
+      ],
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
         supportedLocales: const [
@@ -53,8 +53,6 @@ class MyApp extends StatelessWidget {
         routes: {
           "login": (context) => Login(),
           'password': (context) => Password(),
-          'active': (context) => ActivationCode(),
-          'create': (context) => CreatePassword(),
           'home': (context) => HomeScreen(),
           'signup': (context) => SignUp(),
           'adminHome': (context) => AdminHome(),

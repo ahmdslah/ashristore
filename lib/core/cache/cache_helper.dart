@@ -65,4 +65,13 @@ class CacheHelper {
   Future<bool> deleteData({required String key}) async {
     return await sharedPref.remove(key);
   }
+
+  void printAllCache() {
+    // final prefs = CacheHelper.sharedPref;؟
+    final keys = sharedPref.getKeys();
+
+    for (var key in keys) {
+      print('$key : ${sharedPref.get(key)}');
+    }
+  }
 }

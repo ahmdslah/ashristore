@@ -1,4 +1,6 @@
 import 'package:ashristore/components/rectData.dart';
+import 'package:ashristore/const/const.dart';
+import 'package:ashristore/core/cache/cache_helper.dart';
 import 'package:ashristore/cubit/user_cubit/user_cubit.dart';
 import 'package:ashristore/cubit/user_cubit/user_states.dart';
 import 'package:ashristore/text_title.dart';
@@ -94,8 +96,15 @@ class Profile extends StatelessWidget {
 
                           TextButton(
                             onPressed: () async {
+                              Navigator.of(context).pop(); // لإغلاق الديالوج
+                              Navigator.of(context).pop(); // لإغلاق الديالوج
+
                               await FirebaseAuth.instance.signOut();
-                              Navigator.pushReplacementNamed(
+                              print(CacheHelper().getData(key: cartListCache));
+                              CacheHelper().deleteData(key: cartListCache);
+                              print(CacheHelper().getData(key: cartListCache));
+                              context.read<UserCubit>().cartFull = [];
+                              Navigator.pushNamed(
                                 // ignore: use_build_context_synchronously
                                 context,
                                 "login",

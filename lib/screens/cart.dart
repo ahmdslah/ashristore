@@ -4,22 +4,45 @@ import 'package:ashristore/core/cache/cache_helper.dart';
 import 'package:ashristore/cubit/user_cubit/user_cubit.dart';
 import 'package:ashristore/cubit/user_cubit/user_states.dart';
 import 'package:ashristore/text_title.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class Cart extends StatelessWidget {
-  const Cart({super.key});
+  Cart({super.key});
   @override
   Widget build(BuildContext context) {
     return BlocConsumer<UserCubit, UserStates>(
       listener: (context, state) {},
       builder: (context, state) {
+        final cubit = context.read<UserCubit>();
         List pCart = CacheHelper().getListOfMap(cartListCache);
-        // final cubit = context.read<UserCubit>();
-        // cubit.initState();
-        // cubit.setState();
         return Scaffold(
-          appBar: AppBar(title: TextTitle(text: "عربة التسوق")),
+          appBar: AppBar(
+            actions: [
+              IconButton(
+                onPressed: () async {
+                  await cubit.users.doc(cubit.userInfo!.email).set({
+                    userCart: [],
+                  }, SetOptions(merge: true));
+                  CacheHelper().deleteData(key: cartListCache);
+                  CacheHelper().deleteData(key: userCart);
+                  final doc =
+                      await FirebaseFirestore.instance
+                          .collection(userCollection)
+                          .doc(cubit.userInfo!.email.trim().toLowerCase())
+                          .get();
+                  print(CacheHelper().getListOfMap(cartListCache));
+
+                  print(doc[userCart]);
+                  CacheHelper().printAllCache();
+                  cubit.setState();
+                },
+                icon: Icon(Icons.delete),
+              ),
+            ],
+            title: TextTitle(text: "عربة التسوق"),
+          ),
           body:
               pCart.isEmpty
                   ? Center(
